@@ -26,6 +26,7 @@
       }
       body {
         cursor: url(./assets/pointers/pencil.png) 0 15, auto;
+        overflow-y: hidden;
       }
       body.eraser {
         cursor: url(./assets/pointers/eraser.png) 0 15, auto;
@@ -52,6 +53,7 @@
 
       let isTouchDevice = "ontouchstart" in document.documentElement;
       let ctx = canvas.getContext("2d");
+      console.log(ctx);
       ctx.lineWidth = 8;
       ctx.lineCap = "round";
       ctx.fillStyle = "black";
@@ -77,6 +79,18 @@
         ctx.lineTo(x2, y2);
         ctx.stroke();
       }
+      function save () {
+        location.hash = canvas.toDataURL();
+      }
+      function restore() {
+        const imageURL = location.hash.slice(1);
+        const img = new Image();
+        img.src = imageURL;
+        img.onload = () => {
+          ctx.drawImage(img, 0, 0);
+        }
+      }
+      restore();
       if (isTouchDevice) {
         canvas.ontouchstart = (e) => {
           let x = e.touches[0].clientX;
@@ -89,6 +103,9 @@
           drawLine(lastPosition[0], lastPosition[1], x, y);
           lastPosition = [x, y];
         };
+        canvas.ontouchend = () => {
+          save();
+        }
       } else {
         canvas.onmousedown = (e) => {
           painting = true;
@@ -102,6 +119,7 @@
         };
         canvas.onmouseup = () => {
           painting = false;
+          save();
         };
       }
     </script>
